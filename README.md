@@ -4,9 +4,9 @@
 
 This program provides a quick sort of "hub" to start doing malware analysis. A form will open providing a quick selection of a packet capture/binary, and checkboxes with tools to use on them. It will also provide hashes for binaries as well as a quick was to do a google search on all of them. Additionally, a button to open Process Explorer exists. 
 
-#### Parameters
+### Parameters
 
--Config <string> (Default: .\config.xml)
+-Config [string] (Default: .\config.xml)
 
 Specifies the path to the xml config file. Default is config.xml within the working directory.
 
