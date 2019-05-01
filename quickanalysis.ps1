@@ -135,7 +135,7 @@ $captureFileBrowserButton.Add_Click({CaptureClick})
 $captureTextBox = New-Object System.Windows.Forms.TextBox
 $captureTextBox.Location = New-Object System.Drawing.Point(220,73)
 $captureTextBox.Size = New-Object System.Drawing.Size(205, 30)
-$captureTextBox.Text = "Test text oh yeah"
+$captureTextBox.Text = "No file selected"
 $captureTextBox.Font = $smallfont
 $captureTextBox.ReadOnly = $true
 $form.Controls.Add($captureTextBox)
