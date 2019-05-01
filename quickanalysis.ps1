@@ -264,7 +264,7 @@ if(Test-Path $captureTextBox.Text)
 
 if($checkboxPEiD.Checked) #check if box has been ticked
 {
-    if(!Test-Path $config.Paths.PEID) #if path is bad
+    if(!(Test-Path $config.Paths.PEID)) #if path is bad
     {
         Write-Output "PEiD path not found. Please specify in config.xml"
     }
@@ -283,7 +283,7 @@ if($checkboxPEiD.Checked) #check if box has been ticked
 
 if($checkboxDetectItEasy.Checked)
 {
-    if(!Test-Path $config.Paths.DetectItEasy)
+    if(!(Test-Path $config.Paths.DetectItEasy))
     {
         Write-Output "DetectItEasy path not found. Please specify in config.xml"
     }
@@ -302,7 +302,7 @@ if($checkboxDetectItEasy.Checked)
 
 if($checkboxPEStudio.Checked)
 {
-    if(!Test-Path $config.Paths.PEStudio)
+    if(!(Test-Path $config.Paths.PEStudio))
     {
         Write-Output "PEStudio path not found. Please specify in config.xml"
     }
@@ -321,7 +321,7 @@ if($checkboxPEStudio.Checked)
 
 if($checkboxBinaryNinja.Checked)
 {
-    if(!Test-Path $config.Paths.BinaryNinja)
+    if(!(Test-Path $config.Paths.BinaryNinja))
     {
         Write-Output "BinaryNinja path not found. Please specify in config.xml"
     }
@@ -340,7 +340,7 @@ if($checkboxBinaryNinja.Checked)
 
 if($checkboxIDAProDemo.Checked)
 {
-    if(!Test-Path $config.Paths.IDAProDemo)
+    if(!(Test-Path $config.Paths.IDAProDemo))
     {
         Write-Output "IDAProDemo path not found. Please specify in config.xml"
     }
@@ -359,7 +359,7 @@ if($checkboxIDAProDemo.Checked)
 
 if($checkboxIDAFree.Checked)
 {
-    if(!Test-Path $config.Paths.IDAFree)
+    if(!(Test-Path $config.Paths.IDAFree))
     {
         Write-Output "IDAFree path not found. Please specify in config.xml"
     }
@@ -378,7 +378,7 @@ if($checkboxIDAFree.Checked)
 
 if($checkboxWireshark.Checked)
 {
-    if(!Test-Path $config.Paths.Wireshark)
+    if(!(Test-Path $config.Paths.Wireshark))
     {
         Write-Output "Wireshark path not found. Please specify in config.xml"
     }
@@ -397,7 +397,7 @@ if($checkboxWireshark.Checked)
 
 if($checkboxNetworkMiner.Checked)
 {
-    if(!Test-Path $config.Paths.NetworkMiner)
+    if(!(Test-Path $config.Paths.NetworkMiner))
     {
         Write-Output "NetworkMiner path not found. Please specify in config.xml"
     }
