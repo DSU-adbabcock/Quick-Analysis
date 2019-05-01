@@ -1,11 +1,5 @@
 ﻿<?xml version="1.0"?>
 <Paths>
-    <Program>
-        <Name>PEiD</Name>
-        <Path>C:\Users\DSU\Downloads\PEiD-0.95-20081103\PEiD.exe</Path>
-    </Program>
-    <Program>
-        <Name>PEStudio</Name>
-        <Path>x</Path>
-    </Program>
+    <PEID>C:\Users\DSU\Downloads\PEiD-0.95-20081103\PEiD.exe</PEID>
+    <PEStudio>C:\Users\DSU\Desktop\pestudio\pestudio.exe</PEStudio>
 </Paths>
