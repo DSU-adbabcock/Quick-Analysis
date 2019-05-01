@@ -1,10 +1,13 @@
-﻿param
+﻿#only parameter is -ConfigPath to specify location of XML file. Fairly user friendly, no real way to mess stuff up aside from picking bad files
+param
 (
-    [string]$ConfigPath = ".\config.xml"
+    [string]$ConfigPath = ".\config.xml" #default config path
 )
 
+#escape spaces in path to avoid problems
 $ConfigPath = $ConfigPath -replace ' ','` '
 
+#import config file if it exists
 if(Test-Path $ConfigPath)
 {
     [xml]$config = Get-Content $ConfigPath
@@ -15,23 +18,29 @@ else
     exit
 }
 
+#################################### ONCLICK EVENTS ###############################################
 Function BinaryClick()
 {
+    #dialog for file chooser
     $binaryDialog = New-Object System.Windows.Forms.OpenFileDialog
-    $binaryDialog.Filter = "Executables/Binaries (*.exe;*.bin)|*.exe;*.bin|All Files|*.*"
+    $binaryDialog.Filter = "Executables/Binaries (*.exe;*.bin)|*.exe;*.bin|All Files|*.*" #look for specific types of files or all files option
     $binaryDialog.FilterIndex = 1;
     $binaryDialog.ShowDialog()
 
+    #populate text box with filename
     $binaryTextBox.Text = $binaryDialog.FileName
+
+    #get hashes
     $md5 = Get-FileHash $binaryDialog.FileName -Algorithm MD5
     $sha256 = Get-FileHash $binaryDialog.FileName
 
+    #populate hash text boxes
     $sha256hashTextBox.Text = "SHA256 Hash: " + $sha256.hash
     $md5hashTextBox.Text = "MD5 Hash: " + $md5.hash
-    #[System.Windows.Forms.MessageBox]::Show($binaryDialog.FileName)
 
 }
 
+#similar to binaryclick
 Function CaptureClick()
 {
     $captureDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -45,6 +54,7 @@ Function CaptureClick()
 
 Function ProcessExplorerClick()
 {
+    #sanitize path and open program
     $path = $config.Paths.ProcessExplorer
     $path = $path -replace ' ','` '
     Invoke-Expression $path
@@ -52,13 +62,14 @@ Function ProcessExplorerClick()
 
 Function HashSearchClick()
 {
-    if($md5hashTextBox.Text -eq "MD5 Hash:")
+    if($md5hashTextBox.Text -eq "MD5 Hash:") #default value of text box
     {
         [System.Windows.Forms.MessageBox]::Show("No file supplied!")
         return
     }
     else
     {
+        #get hash and open google search with default browser
         $md5 = $md5hashTextBox.Text.split()
         $md5 = $md5[2]
         $md5searchString = "https://google.com/search?q=" + $md5
@@ -67,29 +78,33 @@ Function HashSearchClick()
         $sha256 = $sha256hashTextBox.Text.split()
         $sha256 = $sha256[2]
         $sha256searchString = "https://google.com/search?q=" + $sha256
-
         start $sha256searchString
     }
 
 }
+
+####################################### FORM CREATION ##################################################
+
+
+#BUTTONS
+#make sure we have stuff for forms
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+#create base form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "quickanalysis"
 $form.StartPosition = "CenterScreen"
 $form.Size = New-Object System.Drawing.Size(450, 400)
 
+#fonts to select from easily
 $bigfont = New-Object System.Drawing.Font("Arial",14,[System.Drawing.FontStyle]::Regular)
 $boldbigfont = New-Object System.Drawing.Font("Arial",14,[System.Drawing.FontStyle]::Bold)
 $smallfont = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Regular)
 $boldsmallfont = New-Object System.Drawing.Font("Arial",10,[System.Drawing.FontStyle]::Bold)
 $form.Font = $smallfont
-#$label = New-Object System.Windows.Forms.Label
-#$label.Text = "Programs to run on supplied bin/capture:"
-#$label.AutoSize = $true
-#$form.Controls.Add($label) 
 
+#button to trigger file selection
 $binaryFileBrowserButton = New-Object System.Windows.Forms.Button
 $binaryFileBrowserButton.Location = New-Object System.Drawing.Size(10,30)
 $binaryFileBrowserButton.Size = New-Object System.Drawing.Size(205,40)
@@ -98,14 +113,16 @@ $binaryFileBrowserButton.Font = $boldsmallfont
 $form.Controls.Add($binaryFileBrowserButton)
 $binaryFileBrowserButton.Add_Click({BinaryClick})
 
+#text box for binary
 $binaryTextBox = New-Object System.Windows.Forms.TextBox
 $binaryTextBox.Location = New-Object System.Drawing.Point(10,73)
 $binaryTextBox.Size = New-Object System.Drawing.Size(205, 30)
-$binaryTextBox.Text = "Test text oh yeah"
+$binaryTextBox.Text = "No file selected"
 $binaryTextBox.Font = $smallfont
 $binaryTextBox.ReadOnly = $true
 $form.Controls.Add($binaryTextBox)
 
+#see binary button
 $captureFileBrowserButton = New-Object System.Windows.Forms.Button
 $captureFileBrowserButton.Location = New-Object System.Drawing.Size(220,30)
 $captureFileBrowserButton.Size = New-Object System.Drawing.Size(205,40)
@@ -114,6 +131,7 @@ $captureFileBrowserButton.Font = $boldsmallfont
 $form.Controls.Add($captureFileBrowserButton)
 $captureFileBrowserButton.Add_Click({CaptureClick})
 
+#see binary text box
 $captureTextBox = New-Object System.Windows.Forms.TextBox
 $captureTextBox.Location = New-Object System.Drawing.Point(220,73)
 $captureTextBox.Size = New-Object System.Drawing.Size(205, 30)
@@ -122,6 +140,8 @@ $captureTextBox.Font = $smallfont
 $captureTextBox.ReadOnly = $true
 $form.Controls.Add($captureTextBox)
 
+#CHECKBOXES
+#checkbox for PEID program
 $checkboxPEiD = New-Object System.Windows.Forms.Checkbox
 $checkboxPEiD.Location = New-Object System.Drawing.Size(10,100)
 $checkboxPEiD.Size = New-Object System.Drawing.Size(180,20)
@@ -129,6 +149,7 @@ $checkboxPEiD.Text = "PEiD"
 $checkboxPEiD.Check
 $form.Controls.Add($checkboxPEiD)
 
+#these are all the same
 $checkboxDetectItEasy = New-Object System.Windows.Forms.Checkbox
 $checkboxDetectItEasy.Location = New-Object System.Drawing.Size(10,120)
 $checkboxDetectItEasy.Size = New-Object System.Drawing.Size(180,20)
@@ -178,6 +199,8 @@ $checkboxNetworkMiner.Text = "NetworkMiner"
 $checkboxNetworkMiner.Check
 $form.Controls.Add($checkboxNetworkMiner)
 
+#OTHER BUTTONS
+#button to launch process explorer
 $ProcessExplorerButton = New-Object System.Windows.Forms.Button
 $ProcessExplorerButton.Location = New-Object System.Drawing.Size(220,145)
 $ProcessExplorerButton.Size = New-Object System.Drawing.Size(205,40)
@@ -186,6 +209,7 @@ $ProcessExplorerButton.Font = $smallfont
 $form.Controls.Add($ProcessExplorerButton)
 $ProcessExplorerButton.Add_Click({ProcessExplorerClick})
 
+#button to google hashes
 $HashSearchButton = New-Object System.Windows.Forms.Button
 $HashSearchButton.Location = New-Object System.Drawing.Size(220,190)
 $HashSearchButton.Size = New-Object System.Drawing.Size(205,40)
@@ -194,8 +218,9 @@ $HashSearchButton.Font = $smallfont
 $form.Controls.Add($HashSearchButton)
 $HashSearchButton.Add_Click({HashSearchClick})
 
+#HASH TEXT BOXES
+#these populate once a binary is chosen
 $md5hashTextBox = New-Object System.Windows.Forms.TextBox
-#$md5hashTextBox.Location = New-Object System.Drawing.Point(10,73)
 $md5hashTextBox.Dock = "Bottom"
 $md5hashTextBox.Size = New-Object System.Drawing.Size(180, 30)
 $md5hashTextBox.Text = "MD5 Hash:"
@@ -204,7 +229,6 @@ $md5hashTextBox.ReadOnly = $true
 $form.Controls.Add($md5hashTextBox)
 
 $sha256hashTextBox = New-Object System.Windows.Forms.TextBox
-#$sha256TextBox.Location = New-Object System.Drawing.Point(10,73)
 $sha256hashTextBox.Dock = "Bottom"
 $sha256hashTextBox.Size = New-Object System.Drawing.Size(180, 30)
 $sha256hashTextBox.Text = "SHA256 Hash:"
@@ -212,6 +236,8 @@ $sha256hashTextBox.Font = $smallfont
 $sha256hashTextBox.ReadOnly = $true
 $form.Controls.Add($sha256hashTextBox)
 
+#CONFIRM BUTTON
+#this button closes the form when clicked. variables can still be referenced later
 $okbutton = New-Object System.Windows.Forms.Button
 $okbutton.Dock = "Bottom"
 $okbutton.Height = 80
@@ -222,7 +248,8 @@ $form.AcceptButton = $okbutton
 $form.Controls.Add($okbutton)
 $form.ShowDialog()
 
-
+############################################ PROGRAM LAUNCHING LOGIC #######################################
+#make sure paths are good, sanitize, assign
 if(Test-Path $binaryTextBox.Text)
 {
     $BinaryPath = $binaryTextBox.Text
@@ -234,28 +261,29 @@ if(Test-Path $captureTextBox.Text)
     $CapturePath = $CapturePath -replace ' ','` '
 }
 
-if($checkboxPEiD.Checked)
+
+if($checkboxPEiD.Checked) #check if box has been ticked
 {
-    if(!$config.Paths.PEID)
+    if(!Test-Path $config.Paths.PEID) #if path is bad
     {
         Write-Output "PEiD path not found. Please specify in config.xml"
     }
-    elseif(!$BinaryPath)
+    elseif(!$BinaryPath) #binary wasn't supplied
     {
         Write-Output "Binary path not supplied. Cannot run PEiD."
     }
     else
     {
         $path = $config.Paths.PEID
-        $path = $path -replace ' ','` '
-        $command = $path + " " + $BinaryPath
-        Invoke-Expression $command  
+        $path = $path -replace ' ','` ' #sanitize path
+        $command = $path + " " + $BinaryPath #form command
+        Invoke-Expression $command   #run following string as a command
     }
 }
 
 if($checkboxDetectItEasy.Checked)
 {
-    if(!$config.Paths.DetectItEasy)
+    if(!Test-Path $config.Paths.DetectItEasy)
     {
         Write-Output "DetectItEasy path not found. Please specify in config.xml"
     }
@@ -274,7 +302,7 @@ if($checkboxDetectItEasy.Checked)
 
 if($checkboxPEStudio.Checked)
 {
-    if(!$config.Paths.PEStudio)
+    if(!Test-Path $config.Paths.PEStudio)
     {
         Write-Output "PEStudio path not found. Please specify in config.xml"
     }
@@ -286,14 +314,14 @@ if($checkboxPEStudio.Checked)
     {
         $path = $config.Paths.PEStudio 
         $path = $path -replace ' ','` '
-        $command = $path + " -file:" + $BinaryPath
+        $command = $path + " -file:" + $BinaryPath #this program takes a different input
         Invoke-Expression $command  
     }
 }
 
 if($checkboxBinaryNinja.Checked)
 {
-    if(!$config.Paths.BinaryNinja)
+    if(!Test-Path $config.Paths.BinaryNinja)
     {
         Write-Output "BinaryNinja path not found. Please specify in config.xml"
     }
@@ -312,7 +340,7 @@ if($checkboxBinaryNinja.Checked)
 
 if($checkboxIDAProDemo.Checked)
 {
-    if(!$config.Paths.IDAProDemo)
+    if(!Test-Path $config.Paths.IDAProDemo)
     {
         Write-Output "IDAProDemo path not found. Please specify in config.xml"
     }
@@ -331,7 +359,7 @@ if($checkboxIDAProDemo.Checked)
 
 if($checkboxIDAFree.Checked)
 {
-    if(!$config.Paths.IDAFree)
+    if(!Test-Path $config.Paths.IDAFree)
     {
         Write-Output "IDAFree path not found. Please specify in config.xml"
     }
@@ -350,7 +378,7 @@ if($checkboxIDAFree.Checked)
 
 if($checkboxWireshark.Checked)
 {
-    if(!$config.Paths.Wireshark)
+    if(!Test-Path $config.Paths.Wireshark)
     {
         Write-Output "Wireshark path not found. Please specify in config.xml"
     }
@@ -369,7 +397,7 @@ if($checkboxWireshark.Checked)
 
 if($checkboxNetworkMiner.Checked)
 {
-    if(!$config.Paths.NetworkMiner)
+    if(!Test-Path $config.Paths.NetworkMiner)
     {
         Write-Output "NetworkMiner path not found. Please specify in config.xml"
     }
