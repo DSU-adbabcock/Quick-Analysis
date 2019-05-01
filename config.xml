@@ -6,4 +6,7 @@
     <BinaryNinja>C:\Users\DSU\AppData\Local\Vector35\BinaryNinja\binaryninja.exe</BinaryNinja>
     <IDAProDemo>C:\Program Files\IDA Demo 7.2\ida.exe</IDAProDemo>
     <IDAFree>C:\Program Files\IDA Freeware 7.0\ida64.exe</IDAFree>
+    <Wireshark>C:\Program Files\Wireshark\Wireshark.exe</Wireshark>
+    <NetworkMiner>C:\Users\DSU\Downloads\NetworkMiner_2-4\NetworkMiner_2-4\NetworkMiner.exe</NetworkMiner>
+    <ProcessExplorer>C:\Users\DSU\Downloads\ProcessExplorer\procexp.exe</ProcessExplorer>
 </Paths>

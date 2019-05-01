@@ -3,6 +3,18 @@
     [string]$ConfigPath = ".\config.xml"
 )
 
+$ConfigPath = $ConfigPath -replace ' ','` '
+
+if(Test-Path $ConfigPath)
+{
+    [xml]$config = Get-Content $ConfigPath
+}
+else
+{
+    Write-Output "Bad config path. Specify with -ConfigPath (default is .\config.xml)"
+    exit
+}
+
 Function BinaryClick()
 {
     $binaryDialog = New-Object System.Windows.Forms.OpenFileDialog
@@ -31,6 +43,35 @@ Function CaptureClick()
 
 }
 
+Function ProcessExplorerClick()
+{
+    $path = $config.Paths.ProcessExplorer
+    $path = $path -replace ' ','` '
+    Invoke-Expression $path
+}
+
+Function HashSearchClick()
+{
+    if($md5hashTextBox.Text -eq "MD5 Hash:")
+    {
+        [System.Windows.Forms.MessageBox]::Show("No file supplied!")
+        return
+    }
+    else
+    {
+        $md5 = $md5hashTextBox.Text.split()
+        $md5 = $md5[2]
+        $md5searchString = "https://google.com/search?q=" + $md5
+        start $md5searchString
+
+        $sha256 = $sha256hashTextBox.Text.split()
+        $sha256 = $sha256[2]
+        $sha256searchString = "https://google.com/search?q=" + $sha256
+
+        start $sha256searchString
+    }
+
+}
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -123,11 +164,41 @@ $checkboxIDAFree.Text = "IDA Freeware"
 $checkboxIDAFree.Check
 $form.Controls.Add($checkboxIDAFree)
 
+$checkboxWireshark = New-Object System.Windows.Forms.Checkbox
+$checkboxWireshark.Location = New-Object System.Drawing.Size(220,100)
+$checkboxWireshark.Size = New-Object System.Drawing.Size(180,20)
+$checkboxWireshark.Text = "Wireshark" #lordandsaviortulloss.jpg
+$checkboxWireshark.Check
+$form.Controls.Add($checkboxWireshark)
+
+$checkboxNetworkMiner = New-Object System.Windows.Forms.Checkbox
+$checkboxNetworkMiner.Location = New-Object System.Drawing.Size(220,120)
+$checkboxNetworkMiner.Size = New-Object System.Drawing.Size(180,20)
+$checkboxNetworkMiner.Text = "NetworkMiner"
+$checkboxNetworkMiner.Check
+$form.Controls.Add($checkboxNetworkMiner)
+
+$ProcessExplorerButton = New-Object System.Windows.Forms.Button
+$ProcessExplorerButton.Location = New-Object System.Drawing.Size(220,145)
+$ProcessExplorerButton.Size = New-Object System.Drawing.Size(205,40)
+$ProcessExplorerButton.Text = "Start Process Explorer"
+$ProcessExplorerButton.Font = $smallfont
+$form.Controls.Add($ProcessExplorerButton)
+$ProcessExplorerButton.Add_Click({ProcessExplorerClick})
+
+$HashSearchButton = New-Object System.Windows.Forms.Button
+$HashSearchButton.Location = New-Object System.Drawing.Size(220,190)
+$HashSearchButton.Size = New-Object System.Drawing.Size(205,40)
+$HashSearchButton.Text = "Google Hashes"
+$HashSearchButton.Font = $smallfont
+$form.Controls.Add($HashSearchButton)
+$HashSearchButton.Add_Click({HashSearchClick})
+
 $md5hashTextBox = New-Object System.Windows.Forms.TextBox
 #$md5hashTextBox.Location = New-Object System.Drawing.Point(10,73)
 $md5hashTextBox.Dock = "Bottom"
 $md5hashTextBox.Size = New-Object System.Drawing.Size(180, 30)
-$md5hashTextBox.Text = "MD5 Hash: "
+$md5hashTextBox.Text = "MD5 Hash:"
 $md5hashTextBox.Font = $smallfont
 $md5hashTextBox.ReadOnly = $true
 $form.Controls.Add($md5hashTextBox)
@@ -136,7 +207,7 @@ $sha256hashTextBox = New-Object System.Windows.Forms.TextBox
 #$sha256TextBox.Location = New-Object System.Drawing.Point(10,73)
 $sha256hashTextBox.Dock = "Bottom"
 $sha256hashTextBox.Size = New-Object System.Drawing.Size(180, 30)
-$sha256hashTextBox.Text = "SHA256 Hash: "
+$sha256hashTextBox.Text = "SHA256 Hash:"
 $sha256hashTextBox.Font = $smallfont
 $sha256hashTextBox.ReadOnly = $true
 $form.Controls.Add($sha256hashTextBox)
@@ -151,23 +222,13 @@ $form.AcceptButton = $okbutton
 $form.Controls.Add($okbutton)
 $form.ShowDialog()
 
-if(Test-Path $ConfigPath)
-{
-    [xml]$config = Get-Content $ConfigPath
-}
-else
-{
-    Write-Output "Bad config path. Specify with -ConfigPath (default is .\config.xml)"
-    exit
-}
-
 
 if(Test-Path $binaryTextBox.Text)
 {
     $BinaryPath = $binaryTextBox.Text
     $BinaryPath = $BinaryPath -replace ' ','` '
 }
-if(Test-Path $binaryTextBox.Text)
+if(Test-Path $captureTextBox.Text)
 {
     $CapturePath = $captureTextBox.Text
     $CapturePath = $CapturePath -replace ' ','` '
@@ -283,6 +344,44 @@ if($checkboxIDAFree.Checked)
         $path = $config.Paths.IDAFree
         $path = $path -replace ' ','` '
         $command = $path + " " + $BinaryPath
+        Invoke-Expression $command
+    }
+}
+
+if($checkboxWireshark.Checked)
+{
+    if(!$config.Paths.Wireshark)
+    {
+        Write-Output "Wireshark path not found. Please specify in config.xml"
+    }
+    elseif(!$CapturePath)
+    {
+        Write-Output "Capture path not supplied. Cannot run Wireshark."
+    }
+    else
+    {
+        $path = $config.Paths.Wireshark
+        $path = $path -replace ' ','` '
+        $command = $path + " " + $CapturePath
+        Invoke-Expression $command
+    }
+}
+
+if($checkboxNetworkMiner.Checked)
+{
+    if(!$config.Paths.NetworkMiner)
+    {
+        Write-Output "NetworkMiner path not found. Please specify in config.xml"
+    }
+    elseif(!$CapturePath)
+    {
+        Write-Output "Capture path not supplied. Cannot run NetworkMiner."
+    }
+    else
+    {
+        $path = $config.Paths.NetworkMiner
+        $path = $path -replace ' ','` '
+        $command = $path + " " + $CapturePath
         Invoke-Expression $command
     }
 }
