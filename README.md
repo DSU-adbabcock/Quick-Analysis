@@ -12,4 +12,5 @@ Specifies the path to the xml config file. Default is config.xml within the work
 
 ## Config File
 
-The config.xml file simply contains paths to all of the desired programs. Full paths must be supplied if you want the program to run. An example config file and a skeleton is provided.
+The config.xml file simply contains paths to all of the desired programs. Full paths must be supplied if you want the program to run. An example config file and a skeleton is provided. 
+Currently kind of a pain to set up, I'll make a tool to do this via the file chooser sometime.
