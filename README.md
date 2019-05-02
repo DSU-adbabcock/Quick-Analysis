@@ -1,4 +1,4 @@
-# Lab13
+# QuickAnalysis
 
 ## quickanalysis.ps1
 
